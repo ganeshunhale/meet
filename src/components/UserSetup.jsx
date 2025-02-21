@@ -1,16 +1,24 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { userNameAction } from '../Redux/userSlice';
+import { useNavigate } from 'react-router';
 
-export function UserSetup({ onComplete }) {
+export function UserSetup() {
   const [step, setStep] = useState('name');
   const [userName, setUserName] = useState('');
   const [isHost, setIsHost] = useState(null);
-
+  const dispatch = useDispatch()
+  let navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (step === 'name' && userName.trim()) {
       setStep('type');
     } else if (step === 'type' && isHost !== null) {
-      onComplete(userName, isHost);
+      // onComplete(userName, isHost);
+      dispatch(userNameAction({userName,isHost}))
+      localStorage.setItem("userdetails",JSON.stringify({userName,isHost}))
+      navigate("/meeting-room")
+      
     }
   };
 
