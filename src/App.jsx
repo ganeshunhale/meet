@@ -2,8 +2,9 @@ import React from 'react'
 import { Route, Routes } from 'react-router'
 import { UserSetup } from './components/UserSetup'
 import MeetDashboard from './MeetDashboard'
-import { PrivateRoutes } from './components/routes'
+import { PrivateRoutes, PublicRoutes } from './components/routes'
 import { useSelector } from 'react-redux'
+import MeetDashboardNew from './MeetDashboardNew'
 
 const App = () => {
     const userDetails=useSelector(state=>state.user)
@@ -12,10 +13,11 @@ const App = () => {
   return (
     <>
     <Routes>
-      
-      <Route path="/" element={<UserSetup/>} />
+      <Route element={<PublicRoutes userDetails={userDetails}/>}>
+        <Route path="/" element={<UserSetup/>} />
+      </Route>  
       <Route element={<PrivateRoutes userDetails={userDetails}/>}>
-        <Route path="meeting-room" element={<MeetDashboard/>} />
+        <Route path="meeting-room" element={<MeetDashboardNew/>} />
       </Route>
     </Routes>
     </>

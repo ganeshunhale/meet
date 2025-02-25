@@ -4,14 +4,16 @@ import { VideoCall } from './components/VideoCall';
 import { Controls } from './components/Controls';
 import { UserSetup } from './components/UserSetup';
 import './App.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { revertAll } from './Redux/userSlice';
 
 function MeetDashboard() {
-  console.log("kkkkkkkkkkk");
+  // console.log("kkkkkkkkkkk");
 
   const [myPeerId, setMyPeerId] = useState('');
   const [targetPeerId, setTargetPeerId] = useState('');
   const [connections, setConnections] = useState([]);
+  const [connectionObj, setConnectionObj] = useState({});
   const [streams, setStreams] = useState(new Map());
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
@@ -23,7 +25,8 @@ function MeetDashboard() {
   const peerInstance = useRef(null);
   const localVideoRef = useRef(null);
   const userdetails = useSelector(state => state.user)
-  console.log(userdetails);
+  // console.log(userdetails);
+  const dispatch = useDispatch();
 
   useEffect(() => {
 
@@ -62,20 +65,34 @@ function MeetDashboard() {
     };
   }, []);
 
+  console.log({connectionObj})
+
   const handleConnection = (conn) => {
     console.log('New connection established:', conn.peer);
+    setConnectedUsers(prev => new Map(prev).set(conn.peer, userdetails.name))
+    setConnectionObj(prev=>({...prev,[conn.peer]:conn}))
+
 
     conn.on('open', () => {
-      console.log('Connection open:', conn.peer);
-      console.log('connected user', connectedUsers)
-      conn.send({ type: 'USER_INFO', userName: userdetails.name });
+      console.log('Connection open', conn.peer);
+      console.log('connected user', connectedUsers);
+     console.log("connections",connections,connectionObj);
+     
+      
+      conn.send({ type: 'USER_INFO', userName: userdetails.name, peer:conn.peer  });
+      console.log("connection set");
     });
 
     conn.on('data', (data) => {
       console.log('Data received:', data);
 
-      if (data.type === 'USER_INFO') {
-        setConnectedUsers(prev => new Map(prev).set(conn.peer, data.userName));
+      if (data.type === 'USER_INFO') { // && !connectedUsers.get(conn.peer)
+        setConnectedUsers(prev => {
+          const dataa = new Map(prev).set(data.peer, data.userName)
+          console.log({prev, dataa})
+          
+          return dataa
+        });
       }
     });
 
@@ -93,9 +110,26 @@ function MeetDashboard() {
         return newUsers;
       });
     });
-
+    
     setConnections(prev => [...prev, conn]);
   };
+
+  useEffect(() => {
+    if(userdetails.isHost){
+      console.log(connectedUsers)
+      console.log("NEW CONNECTION Sending all conneciton info to user")
+      Array.from(connectedUsers.entries()).map(([ppid, name]) => {
+        Object.keys(connectionObj).map((peerId) => {
+          if(userdetails.peerId !== peerId){
+            connectionObj[peerId].send({ type: 'USER_INFO', userName: name, peer: ppid })
+          }
+        })
+      })
+    } else {
+      console.log("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
+    }
+  }, [connectedUsers,connectionObj])
+  
 
   const handleIncomingCall = async (call) => {
     console.log('Incoming call from:', call.peer);
@@ -121,23 +155,24 @@ function MeetDashboard() {
 
     const conn = peerInstance.current.connect(targetPeerId);
 
-    conn.on('open', () => {
-      console.log('Connected to peer:', conn.peer);
-      conn.send({ type: 'USER_INFO', userName: userdetails.name });
-    });
+    // conn.on('open', () => {
+    //   console.log('Connected to peer:', conn.peer);
+    //   conn.send({ type: 'USER_INFO', userName: userdetails.name });
+    // });
 
-    conn.on('data', (data) => {
-      console.log('Data received from:', conn.peer, data);
-      if (data.type === 'USER_INFO') {
-        setConnectedUsers(prev => new Map(prev).set(conn.peer, data.userName));
-      }
-    });
+    // conn.on('data', (data) => {
+    //   console.log('Data received from:', conn.peer, data);
+    //   if (data.type === 'USER_INFO') {
+    //     setConnectedUsers(prev => new Map(prev).set(conn.peer, data.userName));
+    //   }
+    // });
 
     handleConnection(conn);
   };
 
   const handleDisconnect = () => {
     connections.forEach(conn => conn.close());
+    localStorage.clear();
     setConnections([]);
     setStreams(new Map());
     setConnectedUsers(new Map());
@@ -146,7 +181,9 @@ function MeetDashboard() {
     setIsVideoEnabled(false);
     setIsAudioEnabled(false);
     peerInstance.current?.destroy();
-    setIsSetupComplete(false);
+    // setIsSetupComplete(false);
+    dispatch(revertAll())                                    
+
   };
 
   const toggleVideo = async () => {

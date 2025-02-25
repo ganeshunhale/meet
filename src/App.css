@@ -97,7 +97,7 @@
   max-width: 1920px;
   margin: 0 auto;
   width: 100%;
-  height: calc(100vh - 130px);
+  height: 95wh ;
   overflow: hidden;
 }
 
@@ -345,6 +345,9 @@
   border-radius: 0.75rem;
   font-size: 1rem;
   transition: all 0.2s;
+  background-color: transparent;
+  color: #0f172a;
+
 }
 
 .form-group input:focus {
@@ -389,6 +392,7 @@
   border-radius: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+  color: #0f172a;
 }
 
 .type-btn i {
@@ -433,7 +437,7 @@
   
   .sidebar {
     height: auto;
-    max-height: 300px;
+    height: min-content;
   }
   
   .app-header {
