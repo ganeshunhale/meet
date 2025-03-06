@@ -6,22 +6,21 @@ import { useNavigate } from 'react-router';
 export function UserSetup() {
   const [step, setStep] = useState('name');
   const [userName, setUserName] = useState('');
-  const [isHost, setIsHost] = useState(null);
   const dispatch = useDispatch()
   let navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (step === 'name' && userName.trim()) {
       setStep('type');
-    } else if (step === 'type' && isHost !== null) {
-      // onComplete(userName, isHost);
-      dispatch(userNameAction({userName,isHost}))
-      localStorage.setItem("userdetails",JSON.stringify({userName,isHost}))
-      navigate("/meeting-room")
-      
-    }
+    } 
   };
 
+  const handleType=(isHost)=>{
+    dispatch(userNameAction({userName,isHost}))
+    localStorage.setItem("userdetails",JSON.stringify({userName,isHost}))
+    navigate("/meeting-room")
+  }
+ 
   return (
     <div className="setup-container">
       <div className="setup-card">
@@ -44,26 +43,25 @@ export function UserSetup() {
             <button type="submit" className="setup-btn">Continue</button>
           </form>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form >
             <div className="meeting-type-buttons">
               <button
                 type="button"
-                className={`type-btn ${isHost === true ? 'active' : ''}`}
-                onClick={() => setIsHost(true)}
+                className="type-btn"
+                onClick={() => handleType(true)}
               >
                 <i className="fas fa-plus-circle"></i>
                 Create Meeting
               </button>
               <button
                 type="button"
-                className={`type-btn ${isHost === false ? 'active' : ''}`}
-                onClick={() => setIsHost(false)}
+                className="type-btn"
+                onClick={() => handleType(false)}
               >
                 <i className="fas fa-sign-in-alt"></i>
                 Join Meeting
               </button>
             </div>
-            <button type="submit" className="setup-btn">Start</button>
           </form>
         )}
       </div>

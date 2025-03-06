@@ -1,6 +1,6 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 
-export const revertAll = createAction('REVERT_ALL');
+// export const revertAll = createAction('REVERT_ALL');
 
 const initialState={
   name:localStorage.getItem('userdetails')?JSON.parse(localStorage.getItem('userdetails')).userName:"",
@@ -18,13 +18,18 @@ export const userSlice = createSlice({
         state.name=action.payload.userName;
         state.isHost=action.payload.isHost
      },
+     revertAll:(state,action)=>{
+      state.isHost=false,
+      state.name="",
+      state.peerId=null
+     }
     },
-    extraReducers: (builder) => {
-      builder.addCase(revertAll, () => initialState);
-    },
+    // extraReducers: (builder) => {
+    //   builder.addCase(revertAll, () => initialState);
+    // },
   })
   
   // Action creators are generated for each case reducer function
-  export const { userNameAction, onConnect} = userSlice.actions
+  export const { userNameAction, onConnect,revertAll} = userSlice.actions
   
   export default userSlice.reducer
