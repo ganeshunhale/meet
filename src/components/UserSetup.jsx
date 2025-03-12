@@ -24,7 +24,8 @@ export function UserSetup() {
   return (
     <div className="setup-container">
       <div className="setup-card">
-        <h1>Welcome to Video Chat</h1>
+      <img src="src\assets\meeting.png" alt="MeetSpaceLogo" width={150} />
+        <h1>Welcome to MeetSpace</h1>
         
         {step === 'name' ? (
           <form onSubmit={handleSubmit}>
