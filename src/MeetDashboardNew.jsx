@@ -44,7 +44,7 @@ function MeetDashboardNew() {
     });
     setVideoCallStream((prev) => {
       const updatedStreams = { ...prev };
-      delete updatedStreams[peerId]; 
+      delete updatedStreams[peerId];
       return updatedStreams;
     });
   };
@@ -109,10 +109,10 @@ function MeetDashboardNew() {
       });
 
     }
-    
+
 
   };
-console.log({videoCallStream});
+  console.log({ videoCallStream });
 
 
   useEffect(() => {
@@ -141,37 +141,37 @@ console.log({videoCallStream});
       } else {
         call.answer();
       }
-      call.on("close",(c)=>{
+      call.on("close", (c) => {
         console.log("closed video call");
-        console.log({c,call})
-        if(call.metadata.callType == "screenShare"){
+        console.log({ c, call })
+        if (call.metadata.callType == "screenShare") {
           console.log("cleeeeeeeeeeeeeeeeee");
-          
+
           setStreams((prevStreams) => {
             const updatedStreams = { ...prevStreams };
             delete updatedStreams[call.peer]; // Remove self's screen share stream
             return updatedStreams;
           });
-        } else if(call.metadata.callType == "videoCall") {
+        } else if (call.metadata.callType == "videoCall") {
           setVideoCallStream((prev) => {
             const updatedStreams = { ...prev };
-            delete updatedStreams[call.peer]; 
+            delete updatedStreams[call.peer];
             return updatedStreams;
           });
         }
-        
+
       })
-      call.on("error",()=>{
+      call.on("error", () => {
         console.log("errrrrrrrrrrrrrrrrrrrrrr");
-        
+
       })
       call.on('stream', (remoteStream) => {
         console.log('Received remote stream from:', call.peer);
         if (call.metadata && call.metadata.callType === 'screenShare') {
-        setStreams(prev => ({ ...prev, [call.peer]: remoteStream }));
+          setStreams(prev => ({ ...prev, [call.peer]: remoteStream }));
         }
         if (call.metadata && call.metadata.callType === 'videoCall') {
-        setVideoCallStream(prev => ({ ...prev, [call.peer]: remoteStream }));
+          setVideoCallStream(prev => ({ ...prev, [call.peer]: remoteStream }));
         }
       });
     } catch (err) {
@@ -189,7 +189,7 @@ console.log({videoCallStream});
     const peer = new Peer(peerId, {
       config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
     });
-    
+
     peerInstance.current = peer;
     peer.on('open', (id) => {
       dispatch(onConnect(id));
@@ -206,12 +206,12 @@ console.log({videoCallStream});
 
       });
     });
-    peer.on('call',  handleIncomingCall);
-    window.addEventListener('beforeunload', handleDisconnect);
+    peer.on('call', handleIncomingCall);
+    // window.addEventListener('beforeunload', handleDisconnect);
 
     return () => {
       peer.destroy();
-      window.removeEventListener('beforeunload', handleDisconnect);
+      // window.removeEventListener('beforeunload', handleDisconnect);
     };
   }, [dispatch]);
 
@@ -236,73 +236,75 @@ console.log({videoCallStream});
   };
 
 
-  const [calls, setCalls] = useState([])
   //----------------------------------------- video -----------------------------------------------
-  const toggleVideo = async () => {
-    try {
-      if (isVideoEnabled) {
-        // let local=localStream?.getVideoTracks().forEach(track => track.stop());
-        localStream?.getVideoTracks().forEach(track => track.stop());
-        calls.forEach(c => c.close())
-        setCalls([])
-        setIsVideoEnabled(false);
-        if(isVideoEnabled&&!isAudioEnabled) setLocalStream(null)
-      } else {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: isAudioEnabled });
-        setLocalStream(stream);   
-        console.log("streem_got", stream);
+  const [calls, setCalls] = useState([])
 
+  const handleCall = async (type) => {
+
+    console.log({bisVideoEnabled: isVideoEnabled ,bisAudioEnabled: isAudioEnabled})
+
+    if (!calls.length) {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setLocalStream(stream);
+      console.log("streem_got", stream);
+
+      if (type == "video") {
         setIsVideoEnabled(true);
-
-        Object.keys(participants).filter(id => id !== userdetails?.peerId).forEach(id => {
-          console.log("calling..to", id);
-          const call = peerInstance.current.call(id, stream,{ metadata: { callType: 'videoCall' } });
-          setCalls(p => [...p, call])
-        });
-
-        stream.getVideoTracks()[0].onended = () => {
-          console.log("Video call stopped manually");
-          calls.forEach(c => c.close())
-          setCalls([])
-          setLocalStream(null)
-         
-        };
-
+        const audioTracks = stream.getAudioTracks();
+        if (!isAudioEnabled && audioTracks.length > 0) {
+          const isEnabled = audioTracks[0].enabled;
+          audioTracks.forEach(track => (track.enabled = false));
+        }
+      } else if (type == "audio") {
+        setIsAudioEnabled(true)
+        const VideoTracks = stream.getVideoTracks();
+        if (!isAudioEnabled && VideoTracks.length > 0) {
+          const isEnabled = VideoTracks[0].enabled;
+          VideoTracks.forEach(track => (track.enabled = false));
+        }
       }
-    } catch (err) {
-      console.error('Error toggling video:', err);
+
+      Object.keys(participants).filter(id => id !== userdetails?.peerId).forEach(id => {
+        console.log("calling..to", id);
+        const call = peerInstance.current.call(id, stream, { metadata: { callType: 'videoCall' } });
+        setCalls(p => [...p, call])
+      });
+
+    } else {
+      if (localStream) {
+        if (type == "audio") {
+          const audioTracks = localStream.getAudioTracks();
+          if (audioTracks.length > 0) {
+            const isEnabled = audioTracks[0].enabled;
+            audioTracks.forEach(track => (track.enabled = !isEnabled));
+            setIsAudioEnabled(!isEnabled);
+          }
+        } else if (type == "video") {
+          const VideoTracks = localStream.getVideoTracks();
+          if (VideoTracks.length > 0) {
+            const isEnabled = VideoTracks[0].enabled;
+            VideoTracks.forEach(track => (track.enabled = !isEnabled));
+            setIsVideoEnabled(!isEnabled);
+          }
+        }
+      } 
     }
-  };
-  const toggleAudio = async () => {
-    try {
-      if (isAudioEnabled) {
-        localStream?.getAudioTracks().forEach(track => track.stop());
-        if(isAudioEnabled&&!isVideoEnabled) setLocalStream(null)
-        // setLocalStream(prev=>prev?.getAudioTracks().forEach(track => track.stop()))
-        setIsAudioEnabled(false);
-        // Notify other users that video call has been stopped
-      
-      } else {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: isVideoEnabled, audio: true });
-        setLocalStream(stream);
-        setIsAudioEnabled(true);
-        // localStream?.getAudioTracks().forEach(track => track.enabled = true);
-        // connections.forEach(conn => {
-        //   peerInstance.current.call(conn.peer, stream);
-        // });
-        Object.keys(participants).filter(id => id !== userdetails?.peerId).forEach(id => {
-          console.log("calling..to", id);
+    console.log({isVideoEnabled ,isAudioEnabled})
 
-          peerInstance.current.call(id, stream,{ metadata: { callType: 'videoCall' } });
-        });
+ 
+  }
 
-       
 
-      }
-    } catch (err) {
-      console.error('Error toggling audio:', err);
+  useEffect(() => {
+    if(!isVideoEnabled && !isAudioEnabled){
+      if(localStream)localStream?.getTracks().forEach(track => track.stop());
+      calls.forEach(c => c.close())
+      setCalls([])
+      setLocalStream(null)
     }
-  };
+  },[isVideoEnabled, isAudioEnabled,localStream])
+
+
   const [screenShareCon, setScreenShareCon] = useState([])
   const shareScreen = async () => {
     if (isScreenSharing) {
@@ -313,7 +315,7 @@ console.log({videoCallStream});
         setScreenShareCon([])
       }
       setIsScreenSharing(false);
-      
+
       // Notify others that screen sharing has stopped
       // Object.keys(connections).forEach(connId => {
       //   connections[connId].send({
@@ -322,7 +324,7 @@ console.log({videoCallStream});
       //     peer: userdetails.peerId,
       //   });
       // });
-      
+
       // Restore previous local stream if available
       // if (localStream) {
       //   setLocalStream(localStream);
@@ -331,34 +333,35 @@ console.log({videoCallStream});
       //   });
       // }
     } else {
-    try {
-      const newScreenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: true,
-      });
-
-      // Replace current local stream with screen stream
-      // setLocalStream(screenStream);
-      setScreenStream(newScreenStream);
-      setIsScreenSharing(true);
-      Object.keys(participants)
-        .filter((key) => key !== userdetails?.peerId)
-        .forEach((connId) => {
-          const con=peerInstance.current.call(connId, newScreenStream,{ metadata: { callType: 'screenShare' } });
-          setScreenShareCon(prev=>[...prev,con])
+      try {
+        const newScreenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: true,
         });
 
-      // Handle when user stops screen sharing
-      newScreenStream.getVideoTracks()[0].onended = () => {
-        console.log("stoped casting...");
+        // Replace current local stream with screen stream
+        // setLocalStream(screenStream);
+        setScreenStream(newScreenStream);
+        setIsScreenSharing(true);
+        Object.keys(participants)
+          .filter((key) => key !== userdetails?.peerId)
+          .forEach((connId) => {
+            const con = peerInstance.current.call(connId, newScreenStream, { metadata: { callType: 'screenShare' } });
+            setScreenShareCon(prev => [...prev, con])
+          });
 
-        screenShareCon.forEach(c => c.close())
-        setScreenShareCon([])
-        setIsScreenSharing(false);
-      };
-    } catch (err) {
-      console.error('Error sharing screen:', err);
-    }}
+        // Handle when user stops screen sharing
+        newScreenStream.getVideoTracks()[0].onended = () => {
+          console.log("stoped casting...");
+
+          screenShareCon.forEach(c => c.close())
+          setScreenShareCon([])
+          setIsScreenSharing(false);
+        };
+      } catch (err) {
+        console.error('Error sharing screen:', err);
+      }
+    }
   };
   return (
     <div className="app-container">
@@ -477,8 +480,8 @@ console.log({videoCallStream});
         {/* Uncomment and implement Controls as needed */}
         <Controls
           onShareScreen={shareScreen}
-          onToggleVideo={toggleVideo}
-          onToggleAudio={toggleAudio}
+          onToggleVideo={() => handleCall("video")}
+          onToggleAudio={() => handleCall("audio")}
           isVideoEnabled={isVideoEnabled}
           isAudioEnabled={isAudioEnabled}
           isConnected={Object.keys(connections).length > 0}
