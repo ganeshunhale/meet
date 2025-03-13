@@ -13,7 +13,9 @@ $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 
 // Global Reset
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -46,7 +48,7 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
       align-items: center;
       gap: 1.5rem;
 
-     
+
 
       .disconnect-btn {
         display: flex;
@@ -75,20 +77,22 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     grid-template-columns: 300px 1fr;
     gap: 1.5rem;
     padding: 2rem;
-    max-width: 1920px;
+    max-width: 100vw;
     margin: 0 auto;
     width: 100%;
     height: 95wh;
     overflow: hidden;
 
     @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto; 
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
     }
+
     &.closed {
       grid-template-columns: 1fr;
-      grid-template-rows: auto; 
+      grid-template-rows: auto;
     }
+
     /* When the sidebar is open, reset the transform */
     .sidebar {
       background-color: $surface-color;
@@ -105,11 +109,13 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
       &.open {
         transform: translateX(0);
       }
+
       &.closed {
         transform: translateX(-100%);
         display: none;
 
       }
+
       .peer-info {
         display: flex;
         flex-direction: column;
@@ -143,8 +149,9 @@ $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             border-radius: 0.5rem;
             font-size: 0.875rem;
             transition: border-color 0.2s;
-background-color: transparent;
-color: #000000;
+            background-color: transparent;
+            color: #000000;
+
             &:focus {
               outline: none;
               border-color: $primary-color;
@@ -172,6 +179,7 @@ color: #000000;
 
       .connected-peers {
         flex: 1;
+
         .connection-status {
           display: flex;
           align-items: center;
@@ -179,25 +187,28 @@ color: #000000;
           gap: 0.5rem;
           color: $text-secondary;
           font-size: 0.875rem;
- margin-bottom: 1rem;
-          .connectednumber{
+          margin-bottom: 1rem;
+
+          .connectednumber {
             display: flex;
             align-items: center;
             gap: 0.2rem;
+
             .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: $success-color;
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background-color: $success-color;
+            }
           }
-          }
-            
+
         }
+
         h3 {
           color: $text-primary;
           font-size: 1rem;
           font-weight: 600;
-          
+
         }
 
         ul {
@@ -234,6 +245,7 @@ color: #000000;
         }
       }
     }
+
     .toggle-sidebar-btn {
       position: fixed;
       top: 0px;
@@ -248,26 +260,28 @@ color: #000000;
       // transition: background-color 0.2s ease;
       // transform: translateX(10%);
     }
-    
+
     .toggle-sidebar-btn:hover {
       // background-color: #abccf0;
       color: #304f97;
       border: none;
     }
+
     .toggle-sidebar-btn:focus {
       // background-color: #abccf0;
       // color: #304f97;
       border: none;
       outline: none;
     }
-    .toggle-sidebar-btn.closed{
+
+    .toggle-sidebar-btn.closed {
       // left:0;
       background-color: #eff6ff;
       box-shadow: $shadow-lg;
-max-width: fit-content;
+      max-width: fit-content;
       left: 0px;
       top: 10vh;
-      
+
     }
 
     .video-grid {
@@ -285,6 +299,7 @@ max-width: fit-content;
         border-radius: 1rem;
         overflow: hidden;
         box-shadow: $shadow-md;
+
         video {
           width: 100%;
           height: 100%;
@@ -308,15 +323,16 @@ max-width: fit-content;
 
   footer.app-footer {
     // border-top: 1px solid $border-color;
-position: fixed;
-bottom: 0;
-width: 100%;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
     .controls {
 
       display: flex;
       justify-content: center;
       gap: 1rem;
-    padding: 1rem;
+      padding: 1rem;
 
       .control-btn {
         width: 3.5rem;
@@ -370,7 +386,8 @@ width: 100%;
     box-shadow: $shadow-lg;
     width: 100%;
     max-width: 440px;
-text-align: center;
+    text-align: center;
+
     h1 {
       font-size: 1.75rem;
       color: $text-primary;
@@ -487,8 +504,9 @@ text-align: center;
 @media (max-width: 768px) {
   .main-content {
     grid-template-columns: 1fr;
-    grid-template-rows: auto; 
+    grid-template-rows: auto;
   }
+
   // .share-screen-btn{
   //   display: none !important;
   //   // background-color: #000000;
