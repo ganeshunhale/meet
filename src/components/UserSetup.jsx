@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { userNameAction } from '../Redux/userSlice';
 import { useNavigate } from 'react-router';
-
+import img from "../assets/meeting.png"
 export function UserSetup() {
   const [step, setStep] = useState('name');
   const [userName, setUserName] = useState('');
@@ -24,7 +24,7 @@ export function UserSetup() {
   return (
     <div className="setup-container">
       <div className="setup-card">
-      <img src="src\assets\meeting.png" alt="MeetSpaceLogo" width={150} />
+      <img src={img} alt="MeetSpaceLogo" width={150} />
         <h1>Welcome to MeetSpace</h1>
         
         {step === 'name' ? (
