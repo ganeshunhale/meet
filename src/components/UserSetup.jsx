@@ -39,6 +39,7 @@ export function UserSetup() {
                 placeholder="Your name"
                 required
                 autoFocus
+                autoComplete='off'
               />
             </div>
             <button type="submit" className="setup-btn">Continue</button>

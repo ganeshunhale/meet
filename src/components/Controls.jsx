@@ -26,7 +26,7 @@ export function Controls({
       
       <button 
         onClick={onShareScreen}
-        className="control-btn"
+        className="control-btn share-screen-btn"
         disabled={!isConnected}
         title="Share screen"
       >

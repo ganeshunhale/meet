@@ -489,7 +489,10 @@ text-align: center;
     grid-template-columns: 1fr;
     grid-template-rows: auto; 
   }
-
+  .share-screen-btn{
+    display: none !important;
+    // background-color: #000000;
+  }
   .sidebar {
     height: auto;
     height: min-content;

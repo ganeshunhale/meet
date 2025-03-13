@@ -78,41 +78,7 @@ function MeetDashboardNew() {
       console.log("recived sync participants", data);
 
     }
-    // if (data.type === 'SYNC_CONNECTIONS') {
-    //   console.log("recived sync connections",data);
-
-    // }
-    if (data.type === "SCREEN_SHARING_STOPPED") {
-      if (userdetails.isHost) {
-        setConnections(prev => {
-          const previousState = { ...prev }
-
-          console.log("Screen sharing has stopped.", data, prev);
-          Object.keys(prev).filter(key => key != data.peer).forEach((key) => {
-            console.log("screen sharing stop sent by host", key);
-            prev[key].send(data);
-
-          });
-          alert("Screen sharing has stopped in host.", data);
-          return previousState
-
-        })
-      }
-      alert("Screen sharing has stopped in user.", data);
-
-
-      // Remove the shared screen stream from UI
-      setStreams((prev) => {
-        const updatedStreams = { ...prev };
-        delete updatedStreams[data.peer]; // Remove stream from the sender
-        return updatedStreams;
-      });
-
-    }
-
-
   };
-  console.log({ videoCallStream });
 
 
   useEffect(() => {
@@ -145,11 +111,9 @@ function MeetDashboardNew() {
         console.log("closed video call");
         console.log({ c, call })
         if (call.metadata.callType == "screenShare") {
-          console.log("cleeeeeeeeeeeeeeeeee");
-
           setStreams((prevStreams) => {
             const updatedStreams = { ...prevStreams };
-            delete updatedStreams[call.peer]; // Remove self's screen share stream
+            delete updatedStreams[call.peer]; 
             return updatedStreams;
           });
         } else if (call.metadata.callType == "videoCall") {
@@ -159,10 +123,6 @@ function MeetDashboardNew() {
             return updatedStreams;
           });
         }
-
-      })
-      call.on("error", () => {
-        console.log("errrrrrrrrrrrrrrrrrrrrrr");
 
       })
       call.on('stream', (remoteStream) => {
@@ -194,8 +154,6 @@ function MeetDashboardNew() {
     peer.on('open', (id) => {
       dispatch(onConnect(id));
     });
-
-    // when client connects to host
     peer.on('connection', (conn) => {
       setConnections((prev) => ({ ...prev, [conn.peer]: conn }));
       console.log("connection recived");
@@ -207,15 +165,12 @@ function MeetDashboardNew() {
       });
     });
     peer.on('call', handleIncomingCall);
-    // window.addEventListener('beforeunload', handleDisconnect);
 
     return () => {
       peer.destroy();
-      // window.removeEventListener('beforeunload', handleDisconnect);
     };
   }, [dispatch]);
 
-  // Connecting to host
   const connectToPeer = () => {
     if (!targetPeerId.trim()) return;
     const conn = peerInstance.current.connect(targetPeerId);
@@ -315,32 +270,11 @@ function MeetDashboardNew() {
         setScreenShareCon([])
       }
       setIsScreenSharing(false);
-
-      // Notify others that screen sharing has stopped
-      // Object.keys(connections).forEach(connId => {
-      //   connections[connId].send({
-      //     type: "SCREEN_SHARING_STOPPED",
-      //     userName: userdetails.name,
-      //     peer: userdetails.peerId,
-      //   });
-      // });
-
-      // Restore previous local stream if available
-      // if (localStream) {
-      //   setLocalStream(localStream);
-      //   Object.keys(participants).forEach(connId => {
-      //     peerInstance.current.call(connId, localStream);
-      //   });
-      // }
     } else {
       try {
-        const newScreenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: true,
-        });
+        // const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const newScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
 
-        // Replace current local stream with screen stream
-        // setLocalStream(screenStream);
         setScreenStream(newScreenStream);
         setIsScreenSharing(true);
         Object.keys(participants)
@@ -379,7 +313,6 @@ function MeetDashboardNew() {
       <main className={`main-content ${sidebarOpen ? 'open' : 'closed'}`}>
         {!sidebarOpen && <button
           className="toggle-sidebar-btn closed"
-          // style={{zIndex:100000,background:"red"}}
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           {sidebarOpen ? <i className="fas fa-times"></i> : <i className="fas fa-bars"></i>}
