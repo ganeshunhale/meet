@@ -7,7 +7,7 @@ import './App.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { onConnect, revertAll } from './Redux/userSlice';
 import { useNavigate } from 'react-router';
-
+import img from "./assets/meeting.png"
 function MeetDashboardNew() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [targetPeerId, setTargetPeerId] = useState('');
@@ -300,7 +300,7 @@ function MeetDashboardNew() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <img src="src\assets\meeting.png" width={60} alt="MeetSpaceLogo" />
+        <img src={img} width={60} alt="MeetSpaceLogo" />
         <h1>MeetSpace</h1>
         <div className="header-controls">
 
