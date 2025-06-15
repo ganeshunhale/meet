@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 
-export function VideoCall({ stream, muted = false, username = 'User' }) {
+export function VideoCall({ stream, muted = false, username = 'User' ,mirrored=false}) {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -16,6 +16,7 @@ export function VideoCall({ stream, muted = false, username = 'User' }) {
         autoPlay
         playsInline
         muted={muted}
+        style={mirrored ? { transform: 'scaleX(-1)' } : undefined}
       />
       <div className="participant-name">
         {username}

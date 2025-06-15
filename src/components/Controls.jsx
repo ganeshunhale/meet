@@ -1,5 +1,6 @@
 export function Controls({ 
   onShareScreen, 
+  isScreenSharing,
   onToggleVideo, 
   onToggleAudio,
   isVideoEnabled,
@@ -26,7 +27,7 @@ export function Controls({
       
       <button 
         onClick={onShareScreen}
-        className="control-btn share-screen-btn"
+        className={`control-btn ${isScreenSharing ? 'active' : ''} share-screen-btn`}
         disabled={!isConnected}
         title="Share screen"
       >

@@ -197,26 +197,38 @@ function MeetDashboardNew() {
   const handleCall = async (type) => {
 
     console.log({bisVideoEnabled: isVideoEnabled ,bisAudioEnabled: isAudioEnabled})
+   let isVideoAndAudioEnabled 
+   if(type == "video"){
+    isVideoAndAudioEnabled = isVideoEnabled? true : false
+   }
+    if(type == "audio"){
+      isVideoAndAudioEnabled = isAudioEnabled? true : false
+    }
 
-    if (!calls.length) {
+   
+    if (!isVideoAndAudioEnabled) {
+      console.log("...............:",isVideoAndAudioEnabled,type );
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop()); // Stop existing stream if any
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(stream);
       console.log("streem_got", stream);
 
       if (type == "video") {
-        setIsVideoEnabled(true);
         const audioTracks = stream.getAudioTracks();
         if (!isAudioEnabled && audioTracks.length > 0) {
           const isEnabled = audioTracks[0].enabled;
           audioTracks.forEach(track => (track.enabled = false));
         }
+        setIsVideoEnabled(true);
       } else if (type == "audio") {
-        setIsAudioEnabled(true)
         const VideoTracks = stream.getVideoTracks();
-        if (!isAudioEnabled && VideoTracks.length > 0) {
+        if (!isVideoEnabled && VideoTracks.length > 0) {
           const isEnabled = VideoTracks[0].enabled;
           VideoTracks.forEach(track => (track.enabled = false));
         }
+        setIsAudioEnabled(true)
       }
 
       Object.keys(participants).filter(id => id !== userdetails?.peerId).forEach(id => {
@@ -226,7 +238,8 @@ function MeetDashboardNew() {
       });
 
     } else {
-      if (localStream) {
+
+      if (localStream && isVideoAndAudioEnabled) {
         if (type == "audio") {
           const audioTracks = localStream.getAudioTracks();
           if (audioTracks.length > 0) {
@@ -390,6 +403,7 @@ function MeetDashboardNew() {
               stream={localStream}
               muted={true}
               username={`${userdetails.name} (You)`}
+              mirrored={true}
             />
           )}
           {Object.keys(streams).map((peerId) => (
@@ -397,6 +411,7 @@ function MeetDashboardNew() {
               key={peerId.concat("screenShare")}
               stream={streams[peerId]}
               username={participants[peerId]?.name || 'Unknown User'}
+              mirrored={false} 
             />
           ))}
           {Object.keys(videoCallStream).map((peerId) => (
@@ -404,6 +419,7 @@ function MeetDashboardNew() {
               key={peerId.concat("videoCall")}
               stream={videoCallStream[peerId]}
               username={participants[peerId]?.name || 'Unknown User'}
+              mirrored={true}
             />
           ))}
         </div>
@@ -413,6 +429,7 @@ function MeetDashboardNew() {
         {/* Uncomment and implement Controls as needed */}
         <Controls
           onShareScreen={shareScreen}
+          isScreenSharing={isScreenSharing}
           onToggleVideo={() => handleCall("video")}
           onToggleAudio={() => handleCall("audio")}
           isVideoEnabled={isVideoEnabled}
